@@ -1,25 +1,38 @@
 pipeline {
+    agent any
+    stages {
 
-	agent any
+        stage('pull') {
+            steps {
+                git branch: 'master', url: 'https://github.com/manjunath14321/sBoot.git'
+            }
+        }
+        stage('compile') {
+            steps {
+                sh 'mvn compile'
+            }
+        }
 
-	stages {
-	  stage('build') {
-		steps {
-		  sh 'mvn install -DskipTests'
-		}
-	  }
+        stage('build') {
+            steps {
+                 sh 'mvn clean install'
+            }
+        }
 
-	  stage('test') {
-		steps {
-		  sh 'mvn test'
-		  
-		  post {
-				archiveArtifacts artifacts: 'target/**.jar', followSymlinks: false
-				junit stdioRetention: '', testResults: 'target/surefire-reports/*.xml'
-			}
-		}
-	  }
+        
+    }
 
-}
+  post{
+
+  success{
+     echo 'Build success'
+  }
+    
+  failure{
+       echo 'Failure in the build'
+   }
+
+  }
+
 
 }
